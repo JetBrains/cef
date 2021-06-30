@@ -1,0 +1,43 @@
+diff --git base/BUILD.gn base/BUILD.gn
+index 336ce46f03ad2..ed8ad22f4893d 100644
+--- base/BUILD.gn
++++ base/BUILD.gn
+@@ -69,6 +69,9 @@ declare_args() {
+   # only supported on iOS 64-bit architecture, but some project build //base
+   # for 32-bit architecture.
+   ios_stack_profiler_enabled = true
++
++  # Prevents debug build from producing a crash on LOGGING_FATAL.
++  no_crash_on_assert = false
+ }
+ 
+ # Mutex priority inheritance is disabled by default due to security
+@@ -2104,6 +2107,10 @@ component("base") {
+ 
+     defines += [ "USE_SYMBOLIZE" ]
+ 
++    if (no_crash_on_assert) {
++      defines += [ "NO_CRASH_ON_ASSERT" ]
++    }
++
+     # These dependencies are not required on Android, and in the case
+     # of xdg_mime must be excluded due to licensing restrictions.
+     deps += [
+diff --git base/logging.cc base/logging.cc
+index 9d8dbfb81605d..c382bfe855127 100644
+--- base/logging.cc
++++ base/logging.cc
+@@ -888,11 +888,13 @@ LogMessage::~LogMessage() {
+         DisplayDebugMessageInDialog(stream_.str());
+       }
+ #endif
++#ifndef NO_CRASH_ON_ASSERT
+       // Crash the process to generate a dump.
+ #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
+       IMMEDIATE_CRASH();
+ #else
+       base::debug::BreakDebugger();
++#endif
+ #endif
+     }
+   }
