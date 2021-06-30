@@ -1,0 +1,44 @@
+diff --git base/BUILD.gn base/BUILD.gn
+index 21e4ee1d3efb..f945fb226716 100644
+--- base/BUILD.gn
++++ base/BUILD.gn
+@@ -70,6 +70,9 @@ declare_args() {
+   # TODO(https://crbug.com/1149922): Remove this. If you're setting this to
+   # false on a bot, please leave a note on that bug.
+   build_base_unittests = true
++
++  # Prevents debug build from producing a crash on LOGGING_FATAL.
++  no_crash_on_assert = false
+ }
+ 
+ # Mutex priority inheritance is disabled by default due to security
+@@ -1962,6 +1965,10 @@ component("base") {
+ 
+     defines += [ "USE_SYMBOLIZE" ]
+ 
++    if (no_crash_on_assert) {
++      defines += [ "NO_CRASH_ON_ASSERT" ]
++    }
++
+     # These dependencies are not required on Android, and in the case
+     # of xdg_mime must be excluded due to licensing restrictions.
+     deps += [
+diff --git base/logging.cc base/logging.cc
+index 1eaa2ff69136..f0c1950ffb41 100644
+--- base/logging.cc
++++ base/logging.cc
+@@ -875,11 +875,14 @@ LogMessage::~LogMessage() {
+         DisplayDebugMessageInDialog(stream_.str());
+       }
+ #endif
++
++#ifndef NO_CRASH_ON_ASSERT
+       // Crash the process to generate a dump.
+ #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
+       IMMEDIATE_CRASH();
+ #else
+       base::debug::BreakDebugger();
++#endif
+ #endif
+     }
+   }
