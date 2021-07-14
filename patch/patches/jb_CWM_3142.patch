@@ -1,0 +1,13 @@
+diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
+index 52c1d1eb59c4a..86a079affafe2 100644
+--- ui/views/widget/widget.cc
++++ ui/views/widget/widget.cc
+@@ -418,6 +418,8 @@ gfx::NativeView Widget::GetNativeView() const {
+ }
+ 
+ gfx::NativeWindow Widget::GetNativeWindow() const {
++  if (native_widget_destroyed_)
++    return nullptr;
+   return native_widget_->GetNativeWindow();
+ }
+ 
