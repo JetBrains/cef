@@ -2,6 +2,7 @@
 
 import os
 import sys
+import ntpath
 
 
 def read_filters():
@@ -29,8 +30,12 @@ if len(sys.argv) != 3:
 json_file_path = sys.argv[1]
 include_list_path = sys.argv[2]
 
+json_file_dir = os.path.dirname(os.path.abspath(json_file_path))
+out_filename = "filtered_" + ntpath.basename(json_file_path)
+out_filename_path = os.path.join(json_file_dir, out_filename)
+
 with open(json_file_path, 'r') as json_file_in, \
-        open("filtered_" + json_file_path, 'w') as json_file_out, \
+        open(out_filename_path, 'w') as json_file_out, \
         open(include_list_path, 'r') as filter_file:
 
     filters = read_filters()
