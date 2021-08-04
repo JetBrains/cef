@@ -1,0 +1,16 @@
+diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
+index 0a8cb87554c2f..bcf118fd2cb7a 100644
+--- ui/views/controls/menu/menu_host.cc
++++ ui/views/controls/menu/menu_host.cc
+@@ -151,7 +151,11 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+   // Activatable, so that calling Show in ShowMenuHost will
+   // get keyboard focus.
+   if (init_params.parent == nullptr)
++#if defined(OS_LINUX)
++    params.activatable = Widget::InitParams::Activatable::kNo;
++#else
+     params.activatable = Widget::InitParams::Activatable::kYes;
++#endif
+
+ #if defined(OS_WIN)
+   // On Windows use the software compositor to ensure that we don't block
