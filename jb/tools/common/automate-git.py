@@ -998,35 +998,10 @@ if options.clientdistrib or options.clientdistribonly:
 # CEF branch.
 cef_branch = options.branch
 
-branch_is_master = (cef_branch == 'master' or cef_branch == 'trunk')
-if not branch_is_master:
-  # Verify that the branch value is numeric.
-  if not cef_branch.isdigit():
-    print('Invalid branch value: %s' % cef_branch)
-    sys.exit()
-
-  # Verify the minimum supported branch number.
-  if int(cef_branch) < 3071:
-    print('The requested branch (%s) is too old to build using this tool. ' +
-          'The minimum supported branch is 3071.' % cef_branch)
-    sys.exit()
-
-# True if the requested branch is 3538 or newer.
-branch_is_3538_or_newer = (branch_is_master or int(cef_branch) >= 3538)
-
-# True if the requested branch is 3945 or newer.
-branch_is_3945_or_newer = (branch_is_master or int(cef_branch) >= 3945)
-
 # Enable Python 3 usage in Chromium for branches 3945 and newer.
-if branch_is_3945_or_newer and not is_python2 and \
+if not is_python2 and \
     not 'GCLIENT_PY3' in os.environ.keys():
   os.environ['GCLIENT_PY3'] = '1'
-
-if not branch_is_3945_or_newer and \
-  (not is_python2 or bool(int(os.environ.get('GCLIENT_PY3', '0')))):
-  print('Python 3 is not supported with branch 3904 and older ' +
-        '(set GCLIENT_PY3=0 and run with Python 2 executable).')
-  sys.exit()
 
 if options.armbuild:
   if platform != 'linux':
@@ -1042,8 +1017,7 @@ if platform == 'mac' and not (options.x64build or options.arm64build):
 
 # Platforms that build a cef_sandbox library.
 sandbox_lib_platforms = ['windows']
-if branch_is_3538_or_newer:
-  sandbox_lib_platforms.append('mac')
+sandbox_lib_platforms.append('mac')
 
 if not platform in sandbox_lib_platforms and (options.sandboxdistrib or
                                               options.sandboxdistribonly):
@@ -1171,10 +1145,7 @@ msg("CEF Source Directory: %s" % (cef_dir))
 # Determine the CEF Git branch to use.
 if options.checkout == '':
   # Target the most recent branch commit from the remote repo.
-  if branch_is_master:
-    cef_checkout = 'origin/master'
-  else:
-    cef_checkout = 'origin/' + cef_branch
+  cef_checkout = 'origin/' + cef_branch
 else:
   cef_checkout = options.checkout
 
