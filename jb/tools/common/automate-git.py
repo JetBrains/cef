@@ -614,6 +614,11 @@ parser.add_option(
     metavar='DIR',
     help='Download directory with no spaces [required].')
 parser.add_option(
+    '--cef-src-dir',
+    dest='cefsrcdir',
+    metavar='DIR',
+    help='Cef repo directory with no spaces.')
+parser.add_option(
     '--depot-tools-dir',
     dest='depottoolsdir',
     metavar='DIR',
@@ -628,10 +633,6 @@ parser.add_option('--branch', dest='branch',
                        'to identify the correct URL if --url is not '+\
                        'specified. The default value is master.',
                   default='master')
-parser.add_option('--url', dest='url',
-                  help='CEF download URL. If not specified the default URL '+\
-                       'will be used.',
-                  default='')
 parser.add_option('--chromium-url', dest='chromiumurl',
                   help='Chromium download URL. If not specified the default '+\
                        'URL will be used.',
@@ -1049,7 +1050,12 @@ cef_src_dir = os.path.join(chromium_src_dir, 'cef')
 if options.fastupdate and os.path.exists(cef_src_dir):
   cef_dir = cef_src_dir
 else:
-  cef_dir = os.path.join(download_dir, 'cef')
+  if options.cefsrcdir:
+    msg("[DEBUG]: fastupdate=NO, use custom cef dir=%s" % (options.cefsrcdir))
+    cef_dir = os.path.abspath(options.cefsrcdir)
+  else:
+    msg("[DEBUG]: fastupdate=NO, working dir=%s" % (os.getcwd()))
+    cef_dir = os.path.abspath(os.path.join(os.getcwd(), 'cef'))
 
 ##
 # Manage the download directory.
@@ -1117,29 +1123,11 @@ else:
 # Manage the cef directory.
 ##
 
-# Delete the existing CEF directory if requested.
-if options.forceclean and os.path.exists(cef_dir):
-  delete_directory(cef_dir)
-
 # Determine the type of CEF checkout to use.
 if os.path.exists(cef_dir) and not is_git_checkout(cef_dir):
   raise Exception("Not a valid CEF Git checkout: %s" % (cef_dir))
 
-# Determine the CEF download URL to use.
-cef_url = options.url.strip()
-if cef_url == '':
-  cef_url = cef_git_url
-
-# Verify that the requested CEF URL matches the existing checkout.
-if not options.nocefupdate and os.path.exists(cef_dir):
-  cef_existing_url = get_git_url(cef_dir)
-  if cef_url != cef_existing_url:
-    raise Exception(
-        'Requested CEF checkout URL %s does not match existing URL %s' %
-        (cef_url, cef_existing_url))
-
 msg("CEF Branch: %s" % (cef_branch))
-msg("CEF URL: %s" % (cef_url))
 msg("CEF Source Directory: %s" % (cef_dir))
 
 # Determine the CEF Git branch to use.
@@ -1149,24 +1137,19 @@ if options.checkout == '':
 else:
   cef_checkout = options.checkout
 
-# Create the CEF checkout if necessary.
-if not options.nocefupdate and not os.path.exists(cef_dir):
-  cef_checkout_new = True
-  run('%s clone %s %s' % (git_exe, cef_url, cef_dir), download_dir,
-      depot_tools_dir)
-else:
-  cef_checkout_new = False
+# Clean the existing CEF directory if requested.
+if options.forceclean and os.path.exists(cef_dir):
+  # originally was: delete_directory(cef_dir)
+  msg("[DEBUG]: forceclean=YES, do force checkout and clean")
+  run('%s clean -f' % (git_exe), cef_dir, depot_tools_dir)
+  run('%s checkout --force %s' % (git_exe, cef_checkout), cef_dir, depot_tools_dir)
 
 # Determine if the CEF checkout needs to change.
 if not options.nocefupdate and os.path.exists(cef_dir):
   cef_current_hash = get_git_hash(cef_dir, 'HEAD')
 
-  if not cef_checkout_new:
-    # Fetch updated sources.
-    run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
-
   cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
-  cef_checkout_changed = cef_checkout_new or force_change or \
+  cef_checkout_changed = force_change or \
                          options.forcecefupdate or \
                          cef_current_hash != cef_desired_hash
 
@@ -1175,8 +1158,7 @@ if not options.nocefupdate and os.path.exists(cef_dir):
 
   if cef_checkout_changed:
     if cef_dir == cef_src_dir:
-      # Running in fast update mode. Backup and revert the patched files before
-      # changing the CEF checkout.
+      msg("Running in fast update mode. Backup and revert the patched files before changing the CEF checkout.")
       run_patch_updater("--backup --revert")
 
     # Update the CEF checkout.
