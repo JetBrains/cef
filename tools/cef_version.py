@@ -177,14 +177,18 @@ class VersionFormatter:
     # Determine whether the current commit is on a release branch. For example,
     # if using Chrome build 3683, are we on CEF branch "3683" or "origin/3683"?
     release_branch = chrome_version['BUILD']
+
+    # See if we can get the name of the branch we are on (may be just "HEAD").
+    cef_branch_name = git.get_branch_name(self.cef_path).split('/')[-1]
+
     on_release_branch = (
         git.is_ancestor(self.cef_path, 'HEAD', release_branch) or
         git.is_ancestor(self.cef_path, 'HEAD', 'origin/' + release_branch))
 
-    if not on_release_branch:
-      # Not on a commit that is part of an official named release branch. See
-      # if we can get the name of the branch we are on (may be just "HEAD").
-      cef_branch_name = git.get_branch_name(self.cef_path).split('/')[-1]
+    is_jb_branch = cef_branch_name.startswith('jb_')
+
+    if not is_jb_branch and not on_release_branch:
+      # Not on a commit that is part of an official named release branch.
 
       self._version_parts = {'MAJOR': int(chrome_major), 'MINOR': 0, 'PATCH': 0}
       self._version_string = '%s.0.0-%s.%s+%s+%s' % \
