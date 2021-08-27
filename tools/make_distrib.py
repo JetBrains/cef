@@ -486,6 +486,12 @@ parser.add_option(
     default=False,
     help='don\'t create archives for output directories')
 parser.add_option(
+    '--no-debug',
+    action='store_true',
+    dest='nodebug',
+    default=False,
+    help='don\'t add debug binaries')
+parser.add_option(
     '--ninja-build',
     action='store_true',
     dest='ninjabuild',
@@ -899,9 +905,10 @@ if platform == 'windows':
   # should exist when GN is_official_build=true.
   if mode in ('standard', 'minimal', 'sandbox'):
     dirs = {
-        'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
         'Release': (build_dir_release + '_sandbox', build_dir_release)
     }
+    if not options.nodebug:
+      dirs['Debug'] = (build_dir_debug + '_sandbox', build_dir_debug)
     for dir_name in dirs.keys():
       for src_dir in dirs[dir_name]:
         if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
@@ -916,7 +923,9 @@ if platform == 'windows':
   if mode == 'standard':
     # transfer Debug files
     build_dir = build_dir_debug
-    if not options.allowpartial or path_exists(
+    if options.nodebug:
+      sys.stdout.write("Skip Debug build files.\n")
+    elif not options.allowpartial or path_exists(
         os.path.join(build_dir, libcef_dll)):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
@@ -1033,9 +1042,10 @@ elif platform == 'mac':
   # should exist when GN is_official_build=true.
   if mode in ('standard', 'minimal', 'sandbox'):
     dirs = {
-        'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
         'Release': (build_dir_release + '_sandbox', build_dir_release)
     }
+    if not options.nodebug:
+      dirs['Debug'] = (build_dir_debug + '_sandbox', build_dir_debug)
     for dir_name in dirs.keys():
       for src_dir in dirs[dir_name]:
         if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
@@ -1050,7 +1060,9 @@ elif platform == 'mac':
   if mode == 'standard':
     # transfer Debug files
     build_dir = build_dir_debug
-    if not options.allowpartial or path_exists(
+    if options.nodebug:
+      sys.stdout.write("Skip Debug build files.\n")
+    elif not options.allowpartial or path_exists(
         os.path.join(build_dir, cefclient_app)):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
@@ -1206,7 +1218,9 @@ elif platform == 'linux':
     # transfer Debug files
     build_dir = build_dir_debug
     libcef_path = os.path.join(build_dir, libcef_so)
-    if not options.allowpartial or path_exists(libcef_path):
+    if options.nodebug:
+      sys.stdout.write("Skip Debug build files.\n")
+    elif not options.allowpartial or path_exists(libcef_path):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       copy_files_list(build_dir, dst_dir, binaries)
