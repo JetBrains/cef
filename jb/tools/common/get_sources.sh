@@ -3,7 +3,7 @@
 # Retrieves chromium & cef source code of the proper version:
 # 1. $ mkdir chromium && cd chromium
 # 2. $ git clone https://github.com/JetBrains/cef
-# 3. $ bash cef/jb/tools/common/get_sources.sh
+# 3. $ bash cef/jb/tools/common/create_project.sh
 
 root_dir=$(pwd)
 cef_branch=jb_master
