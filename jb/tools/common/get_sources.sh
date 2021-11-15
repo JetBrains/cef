@@ -6,7 +6,7 @@
 # 3. $ bash cef/jb/tools/common/create_project.sh
 
 root_dir=$(pwd)
-cef_branch=jb_master
+cef_branch=${CEF_BRANCH:=jb_master}
 
 [ -d depot_tools ] || git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git depot_tools
 cd depot_tools || exit 1
