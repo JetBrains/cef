@@ -5,13 +5,11 @@ root_dir=$(pwd)
 project_conf=${CEF_PROJECT_CONF:=Release}
 
 if [ ! -d "$root_dir"/chromium_git/chromium/src/cef/tools ] ||
-   [ ! -d "$root_dir"/chromium_git/chromium/src/out/${project_conf}_GN_x64 ] ||
-   [ ! -d "$root_dir"/depot_tools ];
+   [ ! -d "$root_dir"/chromium_git/chromium/src/out/${project_conf}_GN_x64 ];
 then
   echo "Error: please run jb/tools/linux/build.sh";
   exit 1;
 fi
-export PATH="$root_dir"/depot_tools:$PATH
 
 echo "*** Stripping symbols... ***"
 strip -x "$root_dir"/chromium_git/chromium/src/out/${project_conf}_GN_x64/libcef.so
