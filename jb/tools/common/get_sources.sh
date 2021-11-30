@@ -3,6 +3,11 @@
 
 root_dir=$(pwd)
 cef_branch=${CEF_BRANCH:=jb_master}
+architecture=$1 # arm64 or x64
+if [[ "${architecture}" != *arm64* ]]; then
+  architecture="x64"
+fi
+
 
 if [ ! -d depot_tools ]; then
     echo "*** Clonning depot_tools... ***"
@@ -24,7 +29,7 @@ git checkout $cef_branch
 cd "$root_dir" || exit 1
 export PATH="$root_dir"/depot_tools:$PATH
 echo "*** Downloading chromium... ***"
-python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --x64-build
+python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build
 
 if [ $? -ne 0 ]; then
 	echo "*** Update sources failed. Checkout correct version of depot tools... ***"
@@ -36,7 +41,7 @@ if [ $? -ne 0 ]; then
 	unset COMMIT_DATE
 
   echo "*** Downloading chromium... ***"
-  python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --x64-build
+  python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build
 fi
 
 cd "$root_dir" || exit 1
