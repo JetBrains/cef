@@ -31,7 +31,7 @@ def read_filters(filter_file):
 
 
 def apply_filter(path_line):
-    if exclude_gen_src and "\"gen/" in path_line.sub:
+    if exclude_gen_src and "\"gen/" in path_line:
         return False
     for f in filters:
         if f in path_line:
@@ -75,7 +75,6 @@ with open(json_in_file_path, 'r') as json_file_in, \
                 line = json_file_in.readline()
                 compile_command += line
 
-            # noinspection PyTypeChecker
             if apply_filter(fileLine):
                 if exclude_gen_src:
                     compile_command = compile_command.replace("-include obj/cef/libcef_static/precompile.h-cc", "")
