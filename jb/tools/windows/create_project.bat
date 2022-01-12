@@ -18,7 +18,7 @@ echo "use PATH=%PATH%"
 cd %root_dir%\chromium_git\chromium\src\cef
 echo "*** Creating cef project... ***"
 :: To avoid generating Debug configuration use: is_asan=true
-set GN_DEFINES=symbol_level=1
+set GN_DEFINES=symbol_level=0 is_official_build=true
 set GN_ARGUMENTS=--ide=vs2019 --sln=cef --filters=//cef/*
 call cef_create_projects.bat
 
