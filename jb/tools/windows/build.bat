@@ -25,6 +25,10 @@ if not exist %root_dir%\chromium_git\chromium\src\out\%conf_dir% (
 set "PATH=%root_dir%\depot_tools;%PATH%"
 echo "use PATH=%PATH%"
 
+:: to avoid problems with long paths
+call reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+call reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem"
+
 echo "*** Building cef... ***"
 call ninja -C %root_dir%/chromium_git/chromium/src/out/%conf_dir% cef
 
