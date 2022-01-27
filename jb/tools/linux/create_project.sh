@@ -20,7 +20,8 @@ bash "$root_dir"/install-build-deps.sh --no-arm --no-chromeos-fonts --no-nacl
 
 cd "$root_dir"/chromium_git/chromium/src/cef || exit 1
 echo "*** Creating cef project... ***"
-export GN_DEFINES="is_official_build=true use_allocator=none is_cfi=false use_thin_lto=false use_sysroot=true no_crash_on_assert=true use_vaapi=false"
+source jb/tools/linux/gn.env
+echo "Use GN_DEFINES: ${GN_DEFINES}"
 bash cef_create_projects.sh
 
 cd "$root_dir" || exit 1

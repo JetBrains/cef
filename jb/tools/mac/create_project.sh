@@ -11,5 +11,6 @@ fi
 
 export PATH=$(pwd)/depot_tools:$PATH
 cd ./chromium_git/chromium/src/cef || exit 1
-export GN_DEFINES="is_official_build=true"
+source jb/tools/mac/gn.env
+echo "Use GN_DEFINES: ${GN_DEFINES}"
 bash -x cef_create_projects.sh

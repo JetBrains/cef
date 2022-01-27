@@ -50,7 +50,12 @@ call git checkout %cef_branch%
 
 cd %root_dir%
 call git config --system core.longpaths true
+
 echo "*** Downloading chromium... ***"
+:: must to set the same GN args as in create_project
+:: see https://www.magpcss.org/ceforum/viewtopic.php?f=6&t=18346&start=10
+set GN_DEFINES=symbol_level=0 is_official_build=true
+set GN_ARGUMENTS=--ide=vs2019 --sln=cef --filters=//cef/*
 call python %root_dir%/cef/jb/tools/common/automate-git.py --download-dir=%root_dir%/chromium_git --depot-tools-dir=%root_dir%/depot_tools --branch=%cef_branch% --no-depot-tools-update --no-distrib --no-build --no-debug-tests --no-release-tests --%architecture%-build %cleankeys%
 
 cd %root_dir%

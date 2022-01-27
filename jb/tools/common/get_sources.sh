@@ -40,6 +40,26 @@ cd "$root_dir" || exit 1
 export PATH="$root_dir"/depot_tools:$PATH
 echo "*** Downloading chromium... ***"
 
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)
+      source "$root_dir"/cef/jb/tools/linux/gn.env
+      ;;
+    Darwin*)
+      source "$root_dir"/cef/jb/tools/mac/gn.env
+      ;;
+    CYGWIN*)
+      echo "ERROR: Use get_sources.bat"
+      ;;
+    MINGW*)
+      echo "ERROR: Use get_sources.bat"
+      ;;
+    *)
+      echo "Unknown machine: ${unameOut}"
+      exit 1
+esac
+echo "Use GN_DEFINES: ${GN_DEFINES}"
+
 python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
 
 if [ $? -ne 0 ]; then
