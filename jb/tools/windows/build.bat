@@ -32,5 +32,11 @@ call reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem"
 echo "*** Building cef... ***"
 call ninja -C %root_dir%/chromium_git/chromium/src/out/%conf_dir% cef
 
+echo "*** Creating cef_sandbox... ***"
+:: Generate the cef_sandbox.lib merged library for binary distrib.
+:: see make_distrib.py::904
+::   A separate *_sandbox build should exist when GN is_official_build=true.
+call ninja -C %root_dir%/chromium_git/chromium/src/out/%conf_dir%_sandbox cef_sandbox
+
 echo "*** Creating compilation database... ***"
 call ninja -C %root_dir%/chromium_git/chromium/src/out/%conf_dir% -t compdb cc cxx > %root_dir%\chromium_git\chromium\src\out\%conf_dir%\compile_commands.json
