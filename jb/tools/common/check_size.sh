@@ -29,11 +29,15 @@ echo "New size of $NEWFILEPATH = $NEWFILESIZE bytes."
 # example: IntellijCustomJdk_CefMaster_CefLinuxX64
 CONFIGID=$2
 
+# TeamCity token
+# see https://buildserver.labs.intellij.net/profile.html?item=accessTokens
+TC_TOKEN=$3
+
 #
 # Request info about articats of last pinned build of CONFIGID
 #
 # TODO: replace with correct token 
-CURL_RESPONSE=$(curl --header "Authorization: Bearer eyJ0eXAiOiAiVENWMiJ9.TEthc2pNVlBpRjhNT3B2czhSTkxmUlp3eDlZ.NTlmNWNjOWUtZGExZS00NzdkLThhZTYtNGUyNzJmNmU4MDkw" "https://buildserver.labs.intellij.net/app/rest/builds/pinned:true,buildType:(id:$CONFIGID),branch:(default:true)?fields=id,number,artifacts(file(name,size))")
+CURL_RESPONSE=$(curl --header "Authorization: Bearer $TC_TOKEN" "https://buildserver.labs.intellij.net/app/rest/builds/pinned:true,buildType:(id:$CONFIGID),branch:(default:true)?fields=id,number,artifacts(file(name,size))")
 
 
 # returns such xml:
