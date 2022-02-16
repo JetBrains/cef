@@ -1501,7 +1501,6 @@ class CefMediaAccessCallbackImpl : public CefMediaAccessCallback {
   int32_t requested_permissions_;
 
   IMPLEMENT_REFCOUNTING(CefMediaAccessCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefMediaAccessCallbackImpl);
 };
 
 void AlloyBrowserHostImpl::RequestMediaAccessPermission(
