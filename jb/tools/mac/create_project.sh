@@ -10,7 +10,15 @@ fi
 [ -d ./chromium_git/chromium/src/cef ] ||  (echo "run jb/tools/common/get_sources.sh"; exit 1)
 
 export PATH=$(pwd)/depot_tools:$PATH
+
+source ./cef/jb/tools/mac/build.env
 cd ./chromium_git/chromium/src/cef || exit 1
-source jb/tools/mac/gn.env
+
+which sccache
+if [ $? -eq 0 ]; then
+    echo "Sccache is enabled"
+    export GN_DEFINES="${GN_DEFINES} cc_wrapper=sccache"
+fi
+
 echo "Use GN_DEFINES: ${GN_DEFINES}"
 bash -x cef_create_projects.sh

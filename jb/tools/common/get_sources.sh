@@ -43,10 +43,10 @@ echo "*** Downloading chromium... ***"
 unameOut="$(uname -s)"
 case "${unameOut}" in
     Linux*)
-      source "$root_dir"/cef/jb/tools/linux/gn.env
+      source "$root_dir"/cef/jb/tools/linux/build.env
       ;;
     Darwin*)
-      source "$root_dir"/cef/jb/tools/mac/gn.env
+      source "$root_dir"/cef/jb/tools/mac/build.env
       ;;
     CYGWIN*)
       echo "ERROR: Use get_sources.bat"
