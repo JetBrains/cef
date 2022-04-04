@@ -1,38 +1,49 @@
-# Copyright 2021 JetBrains s.r.o.
+#!/bin/bash
+# Copyright 2021-2022 JetBrains s.r.o.
 # Builds chromium & cef project.
+
+set -euo pipefail
 
 root_dir=$(pwd)
 project_conf=${CEF_PROJECT_CONF:=Release}
-architecture=$1 # arm64 or x64
-if [[ "${architecture}" != *arm64* ]]; then
-  architecture="x64"
-fi
+architecture=${1:-x64} # arm64 or x64
 
 conf_dir=${project_conf}_GN_${architecture}
 
-if [ ! -d chromium_git/chromium/src/out/${conf_dir} ] || [ ! -d ./depot_tools ]; then
-  echo "Error: please run jb/tools/mac/create_project.sh";
-  exit 1;
+script_dir=$(cd -- "$(dirname -- "$0")" &>/dev/null && pwd)
+
+if [ ! -d "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" ]; then
+  echo "Error: not found '$root_dir/chromium_git/chromium/src/out/$conf_dir'"
+  echo "please run $script_dir/create_project.sh"
+  exit 1
 fi
+if [ ! -d "$root_dir"/depot_tools ]; then
+  echo "Error: not found '$root_dir/depot_tools'"
+  echo "please run $script_dir/create_project.sh"
+  exit 1
+fi
+
 export PATH="$root_dir"/depot_tools:$PATH
 
+function log() {
+  echo "$(date --rfc-3339=seconds)  " "$@"
+}
+
 # restart sccache server if presented
-bash "$root_dir"/cef/jb/tools/mac/prepare_sccache.sh
+bash "$script_dir/../common/prepare_sccache.sh" "$script_dir/build.env"
 
 # prepare environment
-source "$root_dir"/cef/jb/tools/mac/build.env
+source "$script_dir/build.env"
 
-# empiric rule: we must build cefsimple at first (otherwise tagret 'cef' won't be compiled)
-echo "*** Building cefsimple ${architecture} ... ***"
-python -c 'import datetime; print datetime.datetime.now()'
-ninja -C "$root_dir"/chromium_git/chromium/src/out/${conf_dir} cefsimple
+# empiric rule: we must build cefsimple at first (otherwise target 'cef' won't be compiled)
+log "*** Building cefsimple ${architecture} ... ***"
+ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" cefsimple
 
-echo "*** Building cef ${architecture} ... ***"
-python -c 'import datetime; print datetime.datetime.now()'
-ninja -C "$root_dir"/chromium_git/chromium/src/out/${conf_dir} cef
+log "*** Building cef ${architecture} ... ***"
+ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" cef
 
-echo "*** Creating compilation database... ***"
-python -c 'import datetime; print datetime.datetime.now()'
-ninja -C "$root_dir"/chromium_git/chromium/src/out/${conf_dir} -t compdb cc cxx > "$root_dir"/chromium_git/chromium/src/out/${conf_dir}/compile_commands.json
+log "*** Creating compilation database... ***"
+ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" -t compdb cc cxx >"$root_dir"/chromium_git/chromium/src/out/"${conf_dir}"/compile_commands.json
 
+log "*** Done"
 cd "$root_dir" || exit 1
