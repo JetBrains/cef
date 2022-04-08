@@ -1,19 +1,45 @@
-# Copyright 2021 JetBrains s.r.o.
+#!/bin/bash
+# Copyright 2021-2022 JetBrains s.r.o.
 # Builds chromium & cef project.
+
+set -euo pipefail
 
 root_dir=$(pwd)
 project_conf=${CEF_PROJECT_CONF:=Release}
+architecture=${1:-x64} # arm64 or x64
 
-if [ ! -d chromium_git/chromium/src/out/${project_conf}_GN_x64 ] || [ ! -d ./depot_tools ]; then
-  echo "Error: please run jb/tools/linux/create_project.sh";
-  exit 1;
+conf_dir=${project_conf}_GN_${architecture}
+
+script_dir=$(cd -- "$(dirname -- "$0")" &>/dev/null && pwd)
+
+if [ ! -d "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" ]; then
+  echo "Error: not found '$root_dir/chromium_git/chromium/src/out/$conf_dir'"
+  echo "please run $script_dir/create_project.sh"
+  exit 1
 fi
+if [ ! -d "$root_dir"/depot_tools ]; then
+  echo "Error: not found '$root_dir/depot_tools'"
+  echo "please run $script_dir/create_project.sh"
+  exit 1
+fi
+
 export PATH="$root_dir"/depot_tools:$PATH
 
-echo "*** Building cef... ***"
-ninja -C "$root_dir"/chromium_git/chromium/src/out/${project_conf}_GN_x64 cefsimple chrome_sandbox
+function log() {
+  echo "$(date --rfc-3339=seconds)  " "$@"
+}
 
-echo "*** Creating compilation database... ***"
-ninja -C "$root_dir"/chromium_git/chromium/src/out/${project_conf}_GN_x64 -t compdb cc cxx > "$root_dir"/chromium_git/chromium/src/out/${project_conf}_GN_x64/compile_commands.json
+# restart sccache server if presented
+bash "$script_dir/../common/prepare_sccache.sh" "$script_dir/build.env"
 
+# prepare environment
+source "$script_dir/build.env"
+
+log "*** Building cef ${architecture} ... ***"
+ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" cefsimple chrome_sandbox
+
+log "*** Creating compilation database... ***"
+ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" -t compdb cc cxx >"$root_dir"/chromium_git/chromium/src/out/"${conf_dir}"/compile_commands.json
+
+log "*** Done"
 cd "$root_dir" || exit 1
