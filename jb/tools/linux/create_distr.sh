@@ -38,7 +38,8 @@ if [[ "$architecture" == arm64 ]]; then
 fi
 
 log "*** Stripping symbols... ***"
-"$strip_cmd" -x "${root_dir}/chromium_git/chromium/src/out/${conf_dir}/libcef.so"
+"$strip_cmd" -v -x "${root_dir}/chromium_git/chromium/src/out/${conf_dir}"/*.so
+"$strip_cmd" -v -x "${root_dir}/chromium_git/chromium/src/out/${conf_dir}"/*.so.1
 log "*** Making distributive... ***"
 cd "$root_dir"/chromium_git/chromium/src/cef/tools || exit 1
 python make_distrib.py --output-dir=../binary_distrib/ --ninja-build "--${architecture}-build" --no-docs --no-symbols --minimal
