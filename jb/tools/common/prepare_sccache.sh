@@ -19,6 +19,6 @@ source "$env_location"
 echo "Restarting sccache server in environment:"
 cat "$env_location"
 
-sccache --stop-server
+sccache --stop-server ||:
 sccache --start-server
 sccache -s
