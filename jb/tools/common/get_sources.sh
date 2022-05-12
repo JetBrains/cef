@@ -29,12 +29,15 @@ cd "$root_dir" || exit 1
 if [ ! -d cef ]; then
     echo "*** Clonning cef... ***"
     git clone https://github.com/JetBrains/cef
+
+    # needed for TeamCity
+    cd cef
+    git fetch https://github.com/JetBrains/cef master:origin/master
+    echo "*** Checkout cef branch: ${cef_branch} ***"
+    git checkout $cef_branch
 fi
+
 cd "$root_dir"/cef || exit 1
-# needed for TeamCity
-git fetch https://github.com/JetBrains/cef master:origin/master
-echo "*** Checkout cef branch: ${cef_branch} ***"
-git checkout $cef_branch
 
 cd "$root_dir" || exit 1
 export PATH="$root_dir"/depot_tools:$PATH
@@ -60,14 +63,14 @@ case "${unameOut}" in
 esac
 echo "Use GN_DEFINES: ${GN_DEFINES}"
 
-python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
+python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
 
 if [ $? -ne 0 ]; then
 	echo "*** Update sources failed... ***"
 	bash "$root_dir"/cef/jb/tools/common/checkout_depot_tools.sh
 
   echo "*** Downloading chromium again... ***"
-  python "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
+  python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
 fi
 
 cd "$root_dir" || exit 1
