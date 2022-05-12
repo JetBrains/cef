@@ -26,10 +26,6 @@ fi
 
 export PATH="$root_dir"/depot_tools:$PATH
 
-echo "*** Installing basic build dependencies... ***"
-apt-get --assume-yes update
-apt-get --assume-yes install lsb-core sudo python libgtkglext1-dev default-jdk vim
-
 echo "*** Installing build deps... ***"
 curl 'https://chromium.googlesource.com/chromium/src/+/master/build/install-build-deps.sh?format=TEXT' | base64 -d >install-build-deps.sh
 if [[ "$architecture" == arm64 ]]; then
@@ -38,7 +34,7 @@ else
   bash "$root_dir"/install-build-deps.sh --no-arm --no-chromeos-fonts --no-nacl
 fi
 
-cd "$root_dir"/chromium_git/chromium/src/cef || exit 1
+cd "$root_dir"/chromium_git/chromium/src/cef
 echo "*** Creating cef project... ***"
 source "$script_dir/build.env"
 
@@ -51,5 +47,3 @@ echo "Use GN_DEFINES: ${GN_DEFINES}"
 bash cef_create_projects.sh
 
 echo "*** Done $0 ***"
-
-cd "$root_dir" || exit 1
