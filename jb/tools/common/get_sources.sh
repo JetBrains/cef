@@ -1,8 +1,11 @@
+#!/bin/bash
+
 # Copyright 2021 JetBrains s.r.o.
 # Retrieves chromium & cef sources.
 
 root_dir=$(pwd)
 cef_branch=${CEF_BRANCH:=jb_master}
+cef_branch=${cef_branch#refs/heads/} # On TeamCity cef_branch may contain git standard prefix, remove it
 architecture=$1 # arm64 or x64
 clean=$2 # clean or clean-with-deps
 if [[ "${architecture}" != *arm64* ]]; then
