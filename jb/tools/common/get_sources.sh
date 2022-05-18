@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Copyright 2021 JetBrains s.r.o.
 # Retrieves chromium & cef sources.
 
@@ -7,10 +9,18 @@ root_dir=$(pwd)
 cef_branch=${CEF_BRANCH:=jb_master}
 cef_branch=${cef_branch#refs/heads/} # On TeamCity cef_branch may contain git standard prefix, remove it
 architecture=$1 # arm64 or x64
-clean=$2 # clean or clean-with-deps
-if [[ "${architecture}" != *arm64* ]]; then
-  architecture="x64"
-fi
+clean=${2:-} # clean or clean-with-deps, optional
+
+case "${architecture}" in
+    x64)
+      ;;
+    arm64)
+      ;;
+    *)
+      echo "Unsupported arch: ${architecture}"
+      exit 1
+esac
+
 cleankeys=""
 if [[ "${clean}" == "clean" ]]; then
   echo "Will be performed clean checkout of Chromium"
@@ -24,25 +34,21 @@ if [ ! -d depot_tools ]; then
     echo "*** Clonning depot_tools... ***"
     git clone https://chromium.googlesource.com/chromium/tools/depot_tools
 fi
-cd depot_tools || exit 1
-git fetch
-git checkout main
+(cd depot_tools && git fetch && git checkout main)
 
-cd "$root_dir" || exit 1
+cd "$root_dir"
 if [ ! -d cef ]; then
     echo "*** Clonning cef... ***"
     git clone https://github.com/JetBrains/cef
 
-    # needed for TeamCity
     cd cef
     git fetch https://github.com/JetBrains/cef master:origin/master
     echo "*** Checkout cef branch: ${cef_branch} ***"
     git checkout $cef_branch
+    cd ..
 fi
 
-cd "$root_dir"/cef || exit 1
-
-cd "$root_dir" || exit 1
+cd "$root_dir"
 export PATH="$root_dir"/depot_tools:$PATH
 echo "*** Downloading chromium... ***"
 
@@ -66,14 +72,10 @@ case "${unameOut}" in
 esac
 echo "Use GN_DEFINES: ${GN_DEFINES}"
 
-python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
-
-if [ $? -ne 0 ]; then
+python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys} || {
 	echo "*** Update sources failed... ***"
 	bash "$root_dir"/cef/jb/tools/common/checkout_depot_tools.sh
 
   echo "*** Downloading chromium again... ***"
   python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
-fi
-
-cd "$root_dir" || exit 1
+}
