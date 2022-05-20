@@ -10,10 +10,13 @@ if not defined cef_branch (
 )
 
 set architecture=x64
+set buildtarget=
 if "%1" == "arm64" (
   echo "use ARM64 build"
   :: arm64 or x64
   set architecture=arm64
+  set CEF_ENABLE_ARM64=1
+  set buildtarget=--build-target=cefsimple
 )
 
 :: clean or clean-with-deps
@@ -56,7 +59,7 @@ echo "*** Downloading chromium... ***"
 :: see https://www.magpcss.org/ceforum/viewtopic.php?f=6&t=18346&start=10
 set GN_DEFINES=symbol_level=0 is_official_build=true
 set GN_ARGUMENTS=--ide=vs2019 --sln=cef --filters=//cef/*
-call python %root_dir%/cef/jb/tools/common/automate-git.py --download-dir=%root_dir%/chromium_git --depot-tools-dir=%root_dir%/depot_tools --branch=%cef_branch% --no-depot-tools-update --no-distrib --no-build --no-debug-tests --no-release-tests --%architecture%-build %cleankeys%
+call python %root_dir%/cef/jb/tools/common/automate-git.py --download-dir=%root_dir%/chromium_git --depot-tools-dir=%root_dir%/depot_tools --branch=%cef_branch% --no-depot-tools-update --no-distrib --no-build --no-debug-tests --no-release-tests %buildtarget% --%architecture%-build %cleankeys%
 
 cd %root_dir%
 
