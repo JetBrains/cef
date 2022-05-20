@@ -12,6 +12,14 @@ if not exist %root_dir%\depot_tools (
   exit \b 1
 )
 
+set architecture=x64
+if "%1" == "arm64" (
+  echo "use ARM64 build"
+  :: arm64 or x64
+  set architecture=arm64
+  set CEF_ENABLE_ARM64=1
+)
+
 set "PATH=%root_dir%\depot_tools;%PATH%"
 echo "use PATH=%PATH%"
 

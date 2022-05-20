@@ -8,10 +8,13 @@ if not defined project_conf (
 )
 
 set architecture=x64
+set buildtarget=cef
 if "%1" == "arm64" (
   echo "use ARM64 build"
   :: arm64 or x64
   set architecture=arm64
+  set CEF_ENABLE_ARM64=1
+  set buildtarget=cefsimple
 )
 
 set conf_dir=%project_conf%_GN_%architecture%
@@ -29,10 +32,10 @@ echo "use PATH=%PATH%"
 call reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
 call reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem"
 
-echo "*** Building cef... ***"
-call ninja -C %root_dir%/chromium_git/chromium/src/out/%conf_dir% cef
+echo "*** Building %buildtarget% (for %architecture%)... ***"
+call ninja -C %root_dir%/chromium_git/chromium/src/out/%conf_dir% %buildtarget%
 
-echo "*** Creating cef_sandbox... ***"
+echo "*** Creating cef_sandbox (for %architecture%)... ***"
 :: Generate the cef_sandbox.lib merged library for binary distrib.
 :: see make_distrib.py::904
 ::   A separate *_sandbox build should exist when GN is_official_build=true.
