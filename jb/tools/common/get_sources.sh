@@ -72,10 +72,10 @@ case "${unameOut}" in
 esac
 echo "Use GN_DEFINES: ${GN_DEFINES}"
 
-python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys} || {
+python3 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys} || {
 	echo "*** Update sources failed... ***"
 	bash "$root_dir"/cef/jb/tools/common/checkout_depot_tools.sh
 
   echo "*** Downloading chromium again... ***"
-  python2 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
+  python3 "$root_dir"/cef/jb/tools/common/automate-git.py --download-dir="$root_dir"/chromium_git --depot-tools-dir="$root_dir"/depot_tools --branch=$cef_branch --no-depot-tools-update --no-distrib --no-build --${architecture}-build ${cleankeys}
 }
