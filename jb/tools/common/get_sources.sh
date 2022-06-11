@@ -42,11 +42,14 @@ if [ ! -d cef ]; then
     git clone https://github.com/JetBrains/cef
 
     cd cef
-    git fetch https://github.com/JetBrains/cef master:origin/master
     echo "*** Checkout cef branch: ${cef_branch} ***"
     git checkout $cef_branch
     cd ..
 fi
+
+# local git repository must have branch 'master' to generate cef_version correctly
+cd cef
+git fetch https://github.com/JetBrains/cef master:origin/master
 
 cd "$root_dir"
 export PATH="$root_dir"/depot_tools:$PATH
