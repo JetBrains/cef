@@ -236,7 +236,9 @@ def write_file(path, data):
   """ Write a file. """
   msg('Writing %s' % path)
   if not options.dryrun:
+    msg('try open %s' % path)
     with open(path, 'w', encoding='utf-8') as fp:
+      msg('Write into file!!!!')
       write_fp(fp, data)
 
 
@@ -1356,6 +1358,10 @@ if os.path.exists(out_dir) and not out_src_dir_exists:
   out_src_dir_exists = True
 elif not out_src_dir_exists:
   create_directory(out_src_dir)
+
+
+run('ls -l ', chromium_src_dir)
+run('ls -l ', out_src_dir)
 
 # Write the config file for identifying the branch.
 write_branch_config_file(out_src_dir, cef_branch)
