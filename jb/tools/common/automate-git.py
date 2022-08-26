@@ -1359,9 +1359,10 @@ if os.path.exists(out_dir) and not out_src_dir_exists:
 elif not out_src_dir_exists:
   create_directory(out_src_dir)
 
-
-run('ls -l ', chromium_src_dir)
-run('ls -l ', out_src_dir)
+msg("Goint to write_branch_config_file....")
+run('ls ' + chromium_src_dir)
+run('ls ', chromium_src_dir)
+run('ls ', out_src_dir)
 
 # Write the config file for identifying the branch.
 write_branch_config_file(out_src_dir, cef_branch)
