@@ -51,7 +51,8 @@ call git fetch https://github.com/JetBrains/cef master:origin/master
 call git fetch https://github.com/JetBrains/cef master:origin/jb_master
 
 echo "*** Checkout cef branch: %cef_branch% ***"
-call git checkout %cef_branch%
+call git checkout -f %cef_branch%
+call git reset --hard
 
 cd %root_dir%
 call git config --system core.longpaths true
