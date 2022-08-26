@@ -42,6 +42,9 @@ ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" cefsimple
 log "*** Building cef ${architecture} ... ***"
 ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" cef
 
+log "*** Building cef_sandbox ${architecture} ... ***"
+ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" cef_sandbox
+
 log "*** Creating compilation database... ***"
 ninja -C "$root_dir"/chromium_git/chromium/src/out/"${conf_dir}" -t compdb cc cxx >"$root_dir"/chromium_git/chromium/src/out/"${conf_dir}"/compile_commands.json
 
