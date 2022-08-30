@@ -1360,7 +1360,6 @@ elif not out_src_dir_exists:
   create_directory(out_src_dir)
 
 msg("Goint to write_branch_config_file....")
-run('ls ' + chromium_src_dir)
 run('ls ', chromium_src_dir)
 run('ls ', out_src_dir)
 
