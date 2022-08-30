@@ -26,6 +26,11 @@ fi
 
 export PATH="$root_dir"/depot_tools:$PATH
 
+# set any timezone to avoid build freeze
+# (because of 'Configuring tzdata' that is called from install-build-deps.sh)
+export TZ=Asia/Dubai
+ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 echo "*** Installing build deps... ***"
 curl 'https://chromium.googlesource.com/chromium/src/+/master/build/install-build-deps.sh?format=TEXT' | base64 -d >install-build-deps.sh
 if [[ "$architecture" == arm64 ]]; then
